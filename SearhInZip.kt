@@ -27,9 +27,8 @@ fun main() {
     val zipFile = ZipFile(zipfile)
     zipFile.entries().asSequence().forEach { entry ->
         if (entry.name.endsWith(".json")) {
-            val inputStream: InputStream = zipFile.getInputStream(entry)
-            val jsonStr = inputStream.use { instr ->
-                instr.bufferedReader().use { it.readText() }
+            val jsonStr = zipFile.getInputStream(entry).use { inputStream ->
+                inputStream.bufferedReader().use { it.readText() }
             }
             findInText(File(entry.name).nameWithoutExtension, jsonStr, searchParams)
         }
