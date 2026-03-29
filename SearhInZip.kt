@@ -10,13 +10,10 @@ fun main() {
 //    val dir = File("./resources")
     val zipfile = File("./resources/A19 Timer.zip")
 
-//    val searchFor = "flwTime.*days.*"
-//    val searchFor = "flwTimeUtils.now()"
     val searchParams = SearchParams(
-        searchText = "flwTimeUtils.now()",
-        searchRegex = "flwTime.*days.*",
-        useRegex = false,
-        exact = false
+        searchFor = "flwTimeUtils.now()",
+//        searchFor = "flwTime.*days.*",
+        searchType = SerachType.TEXT
     )
 
 //    dir.walkTopDown()
@@ -64,17 +61,33 @@ fun findValue(filename: String, jsonNode: JsonNode, searchParams: SearchParams) 
 }
 
 fun contains(searchIn: String, searchParams: SearchParams): Boolean {
-    if (searchParams.useRegex) {
-        val searchFor = searchParams.searchRegex
-        val regex = Regex(searchFor)
+    val searchFor = searchParams.searchFor
+    when (searchParams.searchType) {
+        SerachType.REGEX -> {
+            val regex = Regex(searchFor)
 //        return searchIn.contains(regex)
-        return regex.containsMatchIn(searchIn)
+            return regex.containsMatchIn(searchIn)
+        }
+        SerachType.EXACTTEXT -> {
+            return searchIn.equals(searchFor, ignoreCase = false)
+        }
+        SerachType.EXACTTEXT_CASE_SENSITIVE -> {
+            return searchIn.equals(searchFor, ignoreCase = true)
+        }
+        SerachType.TEXT_CASE_SENSITIVE -> {
+            return searchIn.contains(searchFor, ignoreCase = false)
+        }
+        else -> {
+            return searchIn.contains(searchFor, ignoreCase = true)
+        }
     }
-    val searchFor = searchParams.searchText
-    if (searchParams.exact) {
-        return searchIn == searchFor
-    }
-    return searchIn.contains(searchFor)
 }
 
-data class SearchParams(val searchText: String, val searchRegex: String, val useRegex: Boolean, val exact: Boolean)
+data class SearchParams(val searchFor: String, val searchType: SerachType)
+enum class SerachType {
+    REGEX,
+    TEXT,
+    TEXT_CASE_SENSITIVE,
+    EXACTTEXT,
+    EXACTTEXT_CASE_SENSITIVE
+}
